@@ -66,15 +66,14 @@ float kp_a=60.0;
 float kd_a=0.0;
 //Integral
 float ki_a=5.0;
-float total_i_a=0.0;
+float total=0.0;
 float total_a=0.0;
 //Distnacia
 float kp_d=0.25;
 float kd_d=0.0;
 //Integral
 float ki_d=0.005;
-float total_i_a=0.0;
-float total_i_
+float total_i_d=0.0;
 //Diferencia de velocidad
 float kp_v=5.0;
 float ki_v=0.1;
@@ -149,7 +148,7 @@ void loop() {
         e_d_aux=float(e_d);
         e_a=ref-angulo;
         
-        if (abs(e_a)>(0.1)){
+        if (fabs(e_a)>(0.1)){
           total=total+ki_a*e_a*((float)d_time)/1000000.0;
           act_r_aux=kp_a*e_a+total;
           act_l_aux=-kp_a*e_a-total;
@@ -175,9 +174,9 @@ void loop() {
           //Enviar señal de control
           motor_drive(act_r,act_l);
         }else if (e_d_aux>2.0){
-          total_d=total_d+ki_d*e_d*((float)d_time)/1000000.0;
-          act_r_aux=kp_d*e_d_aux+total_d;
-          act_l_aux=kp_d*e_d_aux+total_d;
+          total_i_d=total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
+          act_r_aux=kp_d*e_d_aux+total_i_d;
+          act_l_aux=kp_d*e_d_aux+total_i_d;
 
 
           //PID Anidado
