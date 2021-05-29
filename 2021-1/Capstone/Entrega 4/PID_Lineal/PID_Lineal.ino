@@ -75,7 +75,7 @@ float kd_d=0.0;
 float ki_d=0.005;
 float total_i_d=0.0;
 //Diferencia de velocidad
-float kp_v=5.0;
+float kp_v=1.0;
 float ki_v=0.1;
 float total_v=0.0;
 
@@ -148,7 +148,7 @@ void loop() {
         e_d_aux=float(e_d);
         e_a=ref-angulo;
         
-        if (fabs(e_a)>(0.1)){
+        /*if (abs(e_a)>(0.1)){
           total=total+ki_a*e_a*((float)d_time)/1000000.0;
           act_r_aux=kp_a*e_a+total;
           act_l_aux=-kp_a*e_a-total;
@@ -173,19 +173,19 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else if (e_d_aux>2.0){
-          total_i_d=total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
-          act_r_aux=kp_d*e_d_aux+total_i_d;
-          act_l_aux=kp_d*e_d_aux+total_i_d;
+        }else*/ if (e_d_aux>2.0){
+          total_i_d=0.0;//total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
+          act_r_aux=kp_d*e_d_aux;//+total_i_d+5.0*e_a;
+          act_l_aux=kp_d*e_d_aux;//+total_i_d-5.0*e_a;
 
 
           //PID Anidado
           speed_diff=act_r_aux-act_l_aux;
 
           total_v=speed_diff*ki_v;
-          act_r_aux=act_r_aux-total_v-speed_diff*kp_v;
+          act_r_aux=act_r_aux-speed_diff*kp_v;
 
-          act_l_aux=act_l_aux+total_v+speed_diff*kp_v;
+          act_l_aux=act_l_aux+speed_diff*kp_v;
 
           //Revisar magnitudes
           if (act_r_aux>255.0){
