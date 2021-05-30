@@ -83,7 +83,7 @@ float dist_ant_2=0.0;
 float rate_d=0.0;
 
 //Integral
-float ki_d=0.018;//4;
+float ki_d=0.025;//4;
 float total_i_d=0.0;
 float wind_up=200.0;
 
