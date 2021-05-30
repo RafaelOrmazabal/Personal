@@ -70,9 +70,9 @@ float total=0.0;
 float total_a=0.0;
 
 //Distancia
-float kp_d=0.2;
+float kp_d=0.3;
 //Derivativo
-float kd_d=0.03;
+float kd_d=0.3;
 float prom_dist=0.0;
 float dist_ant_0=0.0;
 float dist_ant_1=0.0;
@@ -80,8 +80,9 @@ float dist_ant_2=0.0;
 float rate_d=0.0;
 
 //Integral
-float ki_d=0.005;
+float ki_d=0.04;
 float total_i_d=0.0;
+float wind_up=200.0;
 
 //Diferencia de velocidad
 float kp_v=1.0;
@@ -186,10 +187,14 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else*/ if (e_d_aux>2.0){
+        }else*/ if (e_d_aux>20.0){
           
           //Integral
-          total_i_d=0.0;//total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
+          total_i_d=total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
+
+          if(total_i_d > wind_up){
+            total_i_d = wind_up;
+          }
 
           //Deivativo
           //Filtro Pasabajos
@@ -206,8 +211,8 @@ void loop() {
           
 
           //Kp más Kd y Ki          
-          act_r_aux=kp_d*e_d_aux + total_i_d+kp_chico*e_a-rate_d*kd_d;
-          act_l_aux=kp_d*e_d_aux + total_i_d-kp_chico*e_a-rate_d*kd_d;
+          act_r_aux=kp_d*e_d_aux + total_i_d + kp_chico*e_a-rate_d*kd_d;
+          act_l_aux=kp_d*e_d_aux + total_i_d - kp_chico*e_a-rate_d*kd_d;
 
 
           //PID Anidado
@@ -354,8 +359,8 @@ void estimar_estado(int vel_r, int vel_l, unsigned long delta_t){
   float y_aux = (float)distancia_y + ((float)vel_r + (float)vel_l)*((float)delta_t_aux)*((float)sin(angulo_aux))/2.0;
   distancia_y = (int)y_aux;
 
-  //Serial.println(distancia_x);
-  Serial.println(angulo);
+  Serial.println(distancia_x);
+  //Serial.println(angulo);
 }
 
 void frenar(){
