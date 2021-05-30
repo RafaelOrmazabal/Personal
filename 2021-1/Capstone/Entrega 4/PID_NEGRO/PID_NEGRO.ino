@@ -53,7 +53,7 @@ int speed_l=0;
 //Referencia angulo [rad]
 float ref=0;
 //Referencia Distancia [mm]
-int ref_d=1000;
+int ref_d=500;
 
 //Error de ángulo
 float e_a=0.0;
@@ -73,7 +73,7 @@ float total=0.0;
 float total_a=0.0;
 
 //Distancia
-float kp_d=0.8;
+float kp_d=0.89;
 //Derivativo
 float kd_d=0.45;
 float prom_dist=0.0;
@@ -83,7 +83,7 @@ float dist_ant_2=0.0;
 float rate_d=0.0;
 
 //Integral
-float ki_d=0.025;//4;
+float ki_d=0.03;//4;
 float total_i_d=0.0;
 float wind_up=200.0;
 
