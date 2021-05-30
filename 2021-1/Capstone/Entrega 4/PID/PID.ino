@@ -57,11 +57,18 @@ float e_a=0.0;
 
 //Ganancias:
 //Ángulo
-float kp_a=60.0;
-float kd_a=0.0;
+float kp_a=90.0;
+//Derivativo
+float kd_a=37.0;
+float prom_a=0.0;
+float a_ant_0=0.0;
+float a_ant_1=0.0;
+float a_ant_2=0.0;
+float rate_a=0.0;
 //Integral
-float ki_a=5.0;
-float total=0.0;
+float ki_a=37.0;
+float total_i_a=0.0;
+float wind_up_a=160.0;
 
 //Señal a motores
 int act_r=0;
@@ -94,6 +101,7 @@ void setup() {
   pinMode(motorr_2, OUTPUT);
   pinMode(motorl_1, OUTPUT);
   pinMode(motorl_2, OUTPUT);
+  pinMode(13,OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(pin_1r), count_right, CHANGE);
   
@@ -107,7 +115,7 @@ void setup() {
 void loop() {
     
   time_act = micros();
-  if (time_act-time_ant>10000){
+  if (time_act-time_ant>35000){
         //cantidad de pasos que avanzó cada rueda
         d_cont_r=cont_r-cont_r_ant;
         d_cont_l=cont_l-cont_l_ant;
@@ -134,10 +142,29 @@ void loop() {
         //Controlador
         e_a=ref-angulo;
         
-        if (abs(e_a)>(0.1)){
-          total=total+ki_a*e_a*((float)d_time)/1000000.0;
-          act_r_aux=kp_a*e_a+total;
-          act_l_aux=-kp_a*e_a-total;
+        if (fabs(e_a)>(0.1)){
+          //Integral
+          total_i_a=total_i_a+ki_a*e_a*((float)d_time)/1000000.0;
+
+           if(total_i_a > wind_up_a){
+            total_i_a = wind_up_a;
+          }
+
+          //Deivativo
+          //Filtro Pasabajos
+          prom_a=angulo+a_ant_0+a_ant_1+a_ant_2;
+          prom_a=prom_a/4.0;
+          //Tasa de Cambio
+          rate_a=prom_a-a_ant_0;
+          rate_a=rate_a/d_time*1000000.0;
+          //Actualizar Datos
+          a_ant_2=a_ant_1;
+          a_ant_1=a_ant_0;
+          a_ant_0=prom_a;
+          
+          
+          act_r_aux=kp_a*e_a+total_i_a-kd_a*rate_a;
+          act_l_aux=-kp_a*e_a-total_i_a+kd_a*rate_a;
 
           //Revisar magnitudes
 
@@ -160,6 +187,7 @@ void loop() {
           motor_drive(act_r,act_l);
         }else{
           motor_drive(0,0);
+          digitalWrite(13,HIGH);
           }
         time_ant=time_act;
       
