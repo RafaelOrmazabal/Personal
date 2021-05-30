@@ -1,3 +1,6 @@
+#include <EEPROM.h>
+//
+volatile  int cont_aux=0;
 //Pins
 const int pin_1r = 12;
 const int pin_2r = 11;
@@ -70,9 +73,9 @@ float total=0.0;
 float total_a=0.0;
 
 //Distancia
-float kp_d=0.3;
+float kp_d=0.8;
 //Derivativo
-float kd_d=0.3;
+float kd_d=0.45;
 float prom_dist=0.0;
 float dist_ant_0=0.0;
 float dist_ant_1=0.0;
@@ -80,7 +83,7 @@ float dist_ant_2=0.0;
 float rate_d=0.0;
 
 //Integral
-float ki_d=0.04;
+float ki_d=0.018;//4;
 float total_i_d=0.0;
 float wind_up=200.0;
 
@@ -120,6 +123,7 @@ void setup() {
   pinMode(motorr_2, OUTPUT);
   pinMode(motorl_1, OUTPUT);
   pinMode(motorl_2, OUTPUT);
+  pinMode(13,OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(pin_1r), count_right, CHANGE);
   
@@ -133,7 +137,7 @@ void setup() {
 void loop() {
     
   time_act = micros();
-  if (time_act-time_ant>10000){
+  if (time_act-time_ant>35000){
         //cantidad de pasos que avanzó cada rueda
         d_cont_r=cont_r-cont_r_ant;
         d_cont_l=cont_l-cont_l_ant;
@@ -187,7 +191,7 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else*/ if (e_d_aux>20.0){
+        }else*/ if (e_d_aux > (((float)ref_d) * 0.05)){
           
           //Integral
           total_i_d=total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
@@ -246,6 +250,7 @@ void loop() {
           motor_drive(act_r,act_l);
         }else{
           motor_drive(0,0);
+          digitalWrite(13,HIGH);
         }
         time_ant=time_act;
       
