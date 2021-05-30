@@ -52,8 +52,12 @@ int speed_l=0;
 
 //Controlador
 //Referencias
+float refs_x[]={0.0,-1000.0,-1000.0,0.0};
+float refs_y[]={1000.0,1000.0,0.0,0.0};
 float ref_x=0.0;
-float ref_y=1000.0;
+float ref_y=0.0;
+int index_ref=0;
+
 
 //Error de ángulo
 float e_a=0.0;
@@ -65,9 +69,9 @@ float speed_diff=0.0;
 
 //Ganancias:
 //Ángulo
-float kp_a=90.0;
+float kp_a=100.0;
 //Derivativo
-float kd_a=37.0;
+float kd_a=80.0;
 float prom_a=0.0;
 float a_ant_0=0.0;
 float a_ant_1=0.0;
@@ -88,13 +92,16 @@ float dist_ant_1=0.0;
 float dist_ant_2=0.0;
 float rate_d=0.0;
 //Integral
-float ki_d=0.03;//4;
+float ki_d=0.001;//4;
 float total_i_d=0.0;
-float wind_up=200.0;
+float wind_up=150.0;
 
 //Ángulo chico
 float kp_chico = 1000.0;
-float ki_chico = 0.0;
+float ki_chico = 200.0;
+float total_i_c=0.0;
+float wind_up_c=50.0;
+
 
 //Cambio de Controlador
 int change_cont=0;
@@ -127,6 +134,8 @@ void setup() {
   pinMode(motorl_1, OUTPUT);
   pinMode(motorl_2, OUTPUT);
   pinMode(13,OUTPUT);
+  ref_x=0.0;//refs_x[index_ref];
+  ref_y=-1000.0;//refs_y[index_ref];
 
   attachInterrupt(digitalPinToInterrupt(pin_1r), count_right, CHANGE);
   
@@ -174,9 +183,18 @@ void loop() {
         */
          
         if ((fabs(e_a)>(0.2))&&(change_cont==0)){
+
+          total_i_d = 0.0;
+          total_i_c=0.0;
+
+          dist_ant_2 = 0.0;
+          dist_ant_1 = 0.0;
+          dist_ant_0 = 0.0;
+          
           //Integral
           digitalWrite(13,LOW);
           total_i_a=total_i_a+ki_a*e_a*((float)d_time)/1000000.0;
+          
 
            if(total_i_a > wind_up_a){
             total_i_a = wind_up_a;
@@ -200,15 +218,15 @@ void loop() {
 
           //Revisar magnitudes
 
-          if (act_r_aux>255.0){
-            act_r_aux=255.0;
-            }else if(act_r_aux<-255.0){
-              act_r_aux = -255.0;
+          if (act_r_aux>220.0){
+            act_r_aux=220.0;
+            }else if(act_r_aux<-220.0){
+              act_r_aux = -220.0;
             }
-          if (act_l_aux>255.0){
-            act_l_aux=255.0;
-            }else if(act_l_aux<-255.0){
-              act_l_aux = -255.0;
+          if (act_l_aux>220.0){
+            act_l_aux=220.0;
+            }else if(act_l_aux<-220.0){
+              act_l_aux = -220.0;
             }
 
           //Pasar a int
@@ -217,16 +235,28 @@ void loop() {
   
             //Enviar señal de control
             motor_drive(act_r,act_l);
-        }else if (e_d > 50.0){
+        }else if ((e_d >= 100.0) && (fabs(e_a)<(6.28/3.0))){
+          total_i_a = 0.0;
+
+          a_ant_2 = 0.0;
+          a_ant_1 = 0.0;
+          a_ant_0 = 0.0;
+          
           change_cont=1;
-          digitalWrite(13,HIGH);
+          
+          
           //Integral
           total_i_d=total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
+          total_i_c=total_i_c+ki_chico*e_a*((float)d_time)/1000000.0;
 
           if(total_i_d > wind_up){
             total_i_d = wind_up;
           }
-
+          
+          if(total_i_c > wind_up_c){
+            total_i_c = wind_up_c;
+          }
+          
           //Deivativo
           //Filtro Pasabajos
           prom_dist=e_d+dist_ant_0+dist_ant_1+dist_ant_2;
@@ -241,9 +271,10 @@ void loop() {
           
           
 
-          //Kp más Kd y Ki          
-          act_r_aux=kp_d*e_d + total_i_d + kp_chico*e_a-rate_d*kd_d;
-          act_l_aux=kp_d*e_d + total_i_d - kp_chico*e_a-rate_d*kd_d;
+          //Kp más Kd y Ki
+             act_r_aux=kp_d*e_d + total_i_d + kp_chico*e_a-rate_d*kd_d+total_i_c;
+             act_l_aux=kp_d*e_d + total_i_d - kp_chico*e_a-rate_d*kd_d-total_i_c; 
+             
 
 
           //PID Anidado
@@ -275,11 +306,18 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else if ((fabs(e_a)<1.5)&&(e_d<80.0)){
+        }else if ((e_d<100.0)&&(index_ref<4)){
           motor_drive(0,0);
-          //change_cont=0;
+          digitalWrite(13,HIGH);
+          /*index_ref++;
+          ref_x=refs_x[index_ref];
+          ref_y=refs_y[index_ref];
+          */
           //digitalWrite(13,HIGH);
-        }
+        }else{
+          motor_drive(0,0);
+          change_cont=1;
+          }
         time_ant=time_act;
       
      
@@ -320,6 +358,10 @@ void count_left(){
 }
 
 void motor_drive(int velocidad_r, int velocidad_l){
+  int mag_aux_r_1=0;
+  int mag_aux_r_2=0;
+  int mag_aux_l_1=0;
+  int mag_aux_l_2=0;
    if(velocidad_r < 0){
     analogWrite(motorr_1, 0);
     analogWrite(motorr_2, abs(velocidad_r));
@@ -330,9 +372,9 @@ void motor_drive(int velocidad_r, int velocidad_l){
 
    if(velocidad_l < 0){
     analogWrite(motorl_2, 0);
-    analogWrite(motorl_1, abs(velocidad_r));
+    analogWrite(motorl_1, abs(velocidad_l));
    }else{
-    analogWrite(motorl_2, velocidad_r);
+    analogWrite(motorl_2, velocidad_l);
     analogWrite(motorl_1, 0);
    }
    /*
@@ -412,6 +454,11 @@ void frenar(){
 void cambio_referencia(){
   e_d = (float)sqrt((ref_x - distancia_x)*(ref_x - distancia_x) + (ref_y - distancia_y)*(ref_y - distancia_y));
   e_a = (float)atan2((ref_y - distancia_y),(ref_x - distancia_x)) - angulo;
-  Serial.println(e_d);
+  if(e_a > 3.14){
+  e_a = e_a - 2*3.14;
+} else if( e_a < -3.14){
+  e_a = e_a + 2 * 3.14;
+}
+  //Serial.println(e_d);
   Serial.println(e_a);
 }
