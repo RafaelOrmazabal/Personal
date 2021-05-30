@@ -52,8 +52,8 @@ int speed_l=0;
 
 //Controlador
 //Referencias
-float refs_x[]={0.0,-1000.0,-1000.0,0.0};
-float refs_y[]={1000.0,1000.0,0.0,0.0};
+float refs_x[]={0.0,1000.0,1000.0,0.0};
+float refs_y[]={-1000.0,-1000.0,0.0,0.0};
 float ref_x=0.0;
 float ref_y=0.0;
 int index_ref=0;
@@ -69,7 +69,7 @@ float speed_diff=0.0;
 
 //Ganancias:
 //Ángulo
-float kp_a=100.0;
+float kp_a=115.0;
 //Derivativo
 float kd_a=80.0;
 float prom_a=0.0;
@@ -134,8 +134,8 @@ void setup() {
   pinMode(motorl_1, OUTPUT);
   pinMode(motorl_2, OUTPUT);
   pinMode(13,OUTPUT);
-  ref_x=0.0;//refs_x[index_ref];
-  ref_y=-1000.0;//refs_y[index_ref];
+  ref_x=refs_x[index_ref];
+  ref_y=refs_y[index_ref];
 
   attachInterrupt(digitalPinToInterrupt(pin_1r), count_right, CHANGE);
   
@@ -309,10 +309,10 @@ void loop() {
         }else if ((e_d<100.0)&&(index_ref<4)){
           motor_drive(0,0);
           digitalWrite(13,HIGH);
-          /*index_ref++;
+          change_cont=0;
+          index_ref++;
           ref_x=refs_x[index_ref];
           ref_y=refs_y[index_ref];
-          */
           //digitalWrite(13,HIGH);
         }else{
           motor_drive(0,0);
