@@ -69,13 +69,15 @@ float ki_a=5.0;
 float total=0.0;
 float total_a=0.0;
 
-//Distnacia
+//Distancia
 float kp_d=0.2;
 //Derivativo
 float kd_d=0.03;
+float prom_dist=0.0;
 float dist_ant_0=0.0;
 float dist_ant_1=0.0;
 float dist_ant_2=0.0;
+float rate_d=0.0;
 
 //Integral
 float ki_d=0.005;
@@ -185,9 +187,27 @@ void loop() {
           //Enviar señal de control
           motor_drive(act_r,act_l);
         }else*/ if (e_d_aux>2.0){
+          
+          //Integral
           total_i_d=0.0;//total_i_d+ki_d*e_d*((float)d_time)/1000000.0;
-          act_r_aux=kp_d*e_d_aux + total_i_d+kp_chico*e_a;
-          act_l_aux=kp_d*e_d_aux + total_i_d-kp_chico*e_a;
+
+          //Deivativo
+          //Filtro Pasabajos
+          prom_dist=(float(distancia_x))+dist_ant_0+dist_ant_1+dist_ant_2;
+          prom_dist=prom_dist/4.0;
+          //Tasa de Cambio
+          rate_d=prom_dist-dist_ant_0;
+          rate_d=rate_d/d_time*1000000.0;
+          //Actualizar Datos
+          dist_ant_2=dist_ant_1;
+          dist_ant_1=dist_ant_0;
+          dist_ant_0=prom_dist;
+          
+          
+
+          //Kp más Kd y Ki          
+          act_r_aux=kp_d*e_d_aux + total_i_d+kp_chico*e_a-rate_d*kd_d;
+          act_l_aux=kp_d*e_d_aux + total_i_d-kp_chico*e_a-rate_d*kd_d;
 
 
           //PID Anidado
