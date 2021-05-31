@@ -69,7 +69,7 @@ float speed_diff=0.0;
 
 //Ganancias:
 //Ángulo
-float kp_a=1000.0;
+float kp_a=800.0;
 //Derivativo
 float kd_a=100.0;
 float prom_a=0.0;
@@ -78,7 +78,7 @@ float a_ant_1=0.0;
 float a_ant_2=0.0;
 float rate_a=0.0;
 //Integral
-float ki_a=37.0;
+float ki_a=60.0;
 float total_i_a=0.0;
 float wind_up_a=160.0;
 
@@ -182,7 +182,7 @@ void loop() {
         e_a=ref_a - angulo;
         */
          
-        if ((fabs(e_a)>(0.8))&&(change_cont==0)&& (index_ref<4)){
+        if ((fabs(e_a)>(1.2))&&(change_cont==0)&& (index_ref<4)){
 
           
 
