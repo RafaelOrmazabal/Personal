@@ -52,8 +52,8 @@ int speed_l=0;
 
 //Controlador
 //Referencias
-float refs_x[]={0.0,1000.0,1000.0,0.0};
-float refs_y[]={-1000.0,-1000.0,0.0,0.0};
+float refs_x[]={1000.0,1000.0,0.0,0.0};
+float refs_y[]={0,1000.0,1000.0,0.0};
 float ref_x=0.0;
 float ref_y=0.0;
 int index_ref=0;
@@ -69,9 +69,9 @@ float speed_diff=0.0;
 
 //Ganancias:
 //Ángulo
-float kp_a=115.0;
+float kp_a=1000.0;
 //Derivativo
-float kd_a=80.0;
+float kd_a=100.0;
 float prom_a=0.0;
 float a_ant_0=0.0;
 float a_ant_1=0.0;
@@ -97,7 +97,7 @@ float total_i_d=0.0;
 float wind_up=150.0;
 
 //Ángulo chico
-float kp_chico = 1000.0;
+float kp_chico = 5000.0;
 float ki_chico = 200.0;
 float total_i_c=0.0;
 float wind_up_c=50.0;
@@ -149,7 +149,7 @@ void setup() {
 void loop() {
     
   time_act = micros();
-  if (time_act-time_ant>35000){
+  if (time_act-time_ant>50000){
         //cantidad de pasos que avanzó cada rueda
         d_cont_r=cont_r-cont_r_ant;
         d_cont_l=cont_l-cont_l_ant;
@@ -182,7 +182,9 @@ void loop() {
         e_a=ref_a - angulo;
         */
          
-        if ((fabs(e_a)>(0.2))&&(change_cont==0)){
+        if ((fabs(e_a)>(0.8))&&(change_cont==0)&& (index_ref<4)){
+
+          
 
           total_i_d = 0.0;
           total_i_c=0.0;
@@ -192,7 +194,7 @@ void loop() {
           dist_ant_0 = 0.0;
           
           //Integral
-          digitalWrite(13,LOW);
+          //digitalWrite(13,HIGH);
           total_i_a=total_i_a+ki_a*e_a*((float)d_time)/1000000.0;
           
 
@@ -235,9 +237,11 @@ void loop() {
   
             //Enviar señal de control
             motor_drive(act_r,act_l);
-        }else if ((e_d >= 100.0) && (fabs(e_a)<(6.28/3.0))){
+        }else if ((e_d >= 50.0) && (fabs(e_a)<(6.28/3.0))&& (index_ref<4)){
+          //digitalWrite(13,LOW);
+          
           total_i_a = 0.0;
-
+          
           a_ant_2 = 0.0;
           a_ant_1 = 0.0;
           a_ant_0 = 0.0;
@@ -289,15 +293,15 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux>220.0){
-            act_r_aux=220.0;
-            }else if(act_r_aux<-220.0){
-              act_r_aux = -220.0;
+          if (act_r_aux>200.0){
+            act_r_aux=200.0;
+            }else if(act_r_aux<-200.0){
+              act_r_aux = -200.0;
             }
-          if (act_l_aux>220.0){
-            act_l_aux=220.0;
-            }else if(act_l_aux<-220.0){
-              act_l_aux = -220.0;
+          if (act_l_aux>200.0){
+            act_l_aux=200.0;
+            }else if(act_l_aux<-200.0){
+              act_l_aux = -200.0;
             }
 
           //Pasar a int
@@ -306,17 +310,24 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else if ((e_d<100.0)&&(index_ref<4)){
+        }else if ((e_d<50.0)&&(index_ref<4)){
+          total_i_d = 0.0;
+          total_i_c=0.0;
+
+          dist_ant_2 = 0.0;
+          dist_ant_1 = 0.0;
+          dist_ant_0 = 0.0;
           motor_drive(0,0);
-          digitalWrite(13,HIGH);
+          //Serial.println("cambio!!!!!!!!!!!!!!!!!!!!!!!!1");
           change_cont=0;
           index_ref++;
           ref_x=refs_x[index_ref];
           ref_y=refs_y[index_ref];
-          //digitalWrite(13,HIGH);
+          digitalWrite(13,LOW);
         }else{
           motor_drive(0,0);
           change_cont=1;
+          //digitalWrite(13,LOW);
           }
         time_ant=time_act;
       
@@ -461,4 +472,7 @@ void cambio_referencia(){
 }
   //Serial.println(e_d);
   Serial.println(e_a);
+  if (e_a>0.0){
+    digitalWrite(13,HIGH);
+  }
 }
