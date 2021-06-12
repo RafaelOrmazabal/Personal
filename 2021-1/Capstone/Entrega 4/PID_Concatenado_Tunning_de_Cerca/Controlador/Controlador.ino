@@ -21,14 +21,7 @@ const int wheel_d = 67;// En milímetros
 const float car_d = 168.239;
 const float circumference = (wheel_d * 3.14);//diametro de la circumferencia
 const float mm_step = circumference / ticks_per_turn; //mm por paso
-const float max_speed = 200.0;
 //Fin
-
-//Comunicacion
-
-bool inicio = false;
-String mensaje;
-bool avanzar = true;
 
 //Variables Controlador
 //Sensor: Encoder
@@ -58,11 +51,10 @@ int speed_l=0;
 //Fin
 
 //Controlador
-//Referencias 
-//float refs_x[]={1000.0,1000.0,0.0, 0.0};
-//float refs_y[]={0.0,1000.0,1000.0, 0.0};
-float refs_x[]={1000.0};
-float refs_y[]={0.0};
+//Referencias
+float refs_x[]={200.0};//,1000.0,0.0,0.0};
+float refs_y[]={0.0};//1000.0,1000.0,0.0};
+int max_index=0;
 float ref_x=0.0;
 float ref_y=0.0;
 int index_ref=0;
@@ -113,6 +105,9 @@ float ki_chico = 700.0;
 float total_i_c=0.0;
 float wind_up_c=50.0;
 
+
+
+
 //Cambio de Controlador
 int change_cont=0;
 
@@ -130,8 +125,12 @@ unsigned long time_ant = 0;
 unsigned long d_time = 0;
 //Fin
 
+
+
 void setup() {
   Serial.begin(9600);
+  max_index=sizeof(refs_x);
+  max_index=max_index/4;
 
   pinMode(pin_1r,INPUT_PULLUP);
   pinMode(pin_2r,INPUT_PULLUP);
@@ -151,58 +150,37 @@ void setup() {
 
   motor_drive(0,0);
   
-  delay(100);
+  delay(5000);
 }
 
 void loop() {
-
-  if(Serial.available()){
-    mensaje = Serial.readStringUntil('\n');
-    mensaje.trim();
-    if(!inicio){
-      //Serial.println(mensaje);
-      if(mensaje.equals("begin")){
-        inicio = true;
-      }
-    }else{
-      if(mensaje.equals("stop")){
-        avanzar = false;
-      }else if(mensaje.equals("go")){
-        avanzar = true;
-      }
-    }
-  }
     
   time_act = micros();
   if (time_act-time_ant>50000){
-
-    //cantidad de pasos que avanzó cada rueda
-    d_cont_r=cont_r-cont_r_ant;
-    d_cont_l=cont_l-cont_l_ant;
-    cont_r_ant=cont_r;
-    cont_l_ant=cont_l;
+        //cantidad de pasos que avanzó cada rueda
+        d_cont_r=cont_r-cont_r_ant;
+        d_cont_l=cont_l-cont_l_ant;
+        cont_r_ant=cont_r;
+        cont_l_ant=cont_l;
       
-    //distancia que avanzó la rueda derecha
-    dist_r=step_to_mm(d_cont_r);
-    //distancia que avanzó la rueda izquierda
-    dist_l=step_to_mm(d_cont_l);
+        //distancia que avanzó la rueda derecha
+        dist_r=step_to_mm(d_cont_r);
+        //distancia que avanzó la rueda izquierda
+        dist_l=step_to_mm(d_cont_l);
       
-    //tiempo que pasó
-    d_time=time_act - time_ant;
+        //tiempo que pasó
+        d_time=time_act - time_ant;
       
-    //velocidad instantanea de cada rueda
-    //mm/s
+        //velocidad instantanea de cada rueda
+        //mm/s
         
-    speed_r=measure_speed(d_time,dist_r);
-    speed_l=measure_speed(d_time,dist_l);
+        speed_r=measure_speed(d_time,dist_r);
+        speed_l=measure_speed(d_time,dist_l);
       
-    //estimación de estados
-    estimar_estado(speed_r, speed_l, d_time);
+        //estimación de estados
+        estimar_estado(speed_r, speed_l, d_time);
 
-    cambio_referencia();
-    
-    if(inicio && avanzar){
-        
+        cambio_referencia();
 
         //Controlador
         /*
@@ -211,7 +189,7 @@ void loop() {
         e_a=ref_a - angulo;
         */
          
-        if ((fabs(e_a)>(1.4))&&(change_cont==0)&& (index_ref < 4)){
+        if ((fabs(e_a)>(1.2))&&(change_cont==0)&& (index_ref<4)){
 
           
 
@@ -280,18 +258,20 @@ void loop() {
               }
               }
             }
+       
+
 
           //Revisar magnitudes
 
-          if (act_r_aux > max_speed){
-            act_r_aux = max_speed;
-            }else if(act_r_aux < -max_speed){
-              act_r_aux = -max_speed;
+          if (act_r_aux>220.0){
+            act_r_aux=220.0;
+            }else if(act_r_aux<-220.0){
+              act_r_aux = -220.0;
             }
-          if (act_l_aux > max_speed){
-            act_l_aux = max_speed;
-            }else if(act_l_aux < -max_speed){
-              act_l_aux = -max_speed;
+          if (act_l_aux>220.0){
+            act_l_aux=220.0;
+            }else if(act_l_aux<-220.0){
+              act_l_aux = -220.0;
             }
 
           //Pasar a int
@@ -300,7 +280,7 @@ void loop() {
   
             //Enviar señal de control
             motor_drive(act_r,act_l);
-        }else if ((e_d >= 50.0) && (fabs(e_a)<(6.28/3.0))&& (index_ref < 4)){
+        }else if ((e_d >= 50.0) && (fabs(e_a)<(6.28/3.0))&& (index_ref<4)){
           //digitalWrite(13,LOW);
           
           total_i_a = 0.0;
@@ -356,15 +336,15 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux > max_speed){
-            act_r_aux = max_speed;
-            }else if(act_r_aux < -max_speed){
-              act_r_aux = -max_speed;
+          if (act_r_aux>200.0){
+            act_r_aux=200.0;
+            }else if(act_r_aux<-200.0){
+              act_r_aux = -200.0;
             }
-          if (act_l_aux > max_speed){
-            act_l_aux = max_speed;
-            }else if(act_l_aux < -max_speed){
-              act_l_aux = -max_speed;
+          if (act_l_aux>200.0){
+            act_l_aux=200.0;
+            }else if(act_l_aux<-200.0){
+              act_l_aux = -200.0;
             }
 
           //Pasar a int
@@ -373,7 +353,7 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else if ((e_d<50.0)&&(index_ref<4)){
+        }else if ((e_d<50.0)&&(index_ref<max_index)){
           total_i_d = 0.0;
           total_i_c=0.0;
 
@@ -381,7 +361,7 @@ void loop() {
           dist_ant_1 = 0.0;
           dist_ant_0 = 0.0;
           motor_drive(0,0);
-          //Serial.println("cambio!!!!!!!!!!!!!!!!!!!!!!!!");
+          //Serial.println("cambio!!!!!!!!!!!!!!!!!!!!!!!!1");
           change_cont=0;
           index_ref++;
           ref_x=refs_x[index_ref];
@@ -390,21 +370,9 @@ void loop() {
         }else{
           motor_drive(0,0);
           change_cont=1;
-          inicio = false;
-          avanzar = true;
-          Serial.println("fin");
           //digitalWrite(13,LOW);
           }
-    }else if(inicio and !avanzar){
-      motor_drive(0,0);
-    }
-    
-    else{
-      index_ref = 0;
-      ref_x=refs_x[index_ref];
-      ref_y=refs_y[index_ref];
-    }
-    time_ant=time_act;
+        time_ant=time_act;
       
      
   }
@@ -530,6 +498,13 @@ void estimar_estado(int vel_r, int vel_l, unsigned long delta_t){
   //Serial.println(angulo);
 }
 
+void frenar(){
+   analogWrite(motorr_1, 255);
+   analogWrite(motorr_2, 255);
+   analogWrite(motorl_1, 255);
+   analogWrite(motorl_2, 255);
+}
+
 void cambio_referencia(){
   e_d = (float)sqrt((ref_x - distancia_x)*(ref_x - distancia_x) + (ref_y - distancia_y)*(ref_y - distancia_y));
   e_a = (float)atan2((ref_y - distancia_y),(ref_x - distancia_x)) - angulo;
@@ -539,7 +514,7 @@ void cambio_referencia(){
   e_a = e_a + 2 * 3.14;
 }
   //Serial.println(e_d);
-  //Serial.println(e_a);
+  Serial.println(e_a);
   if (e_a>0.0){
     digitalWrite(13,HIGH);
   }
