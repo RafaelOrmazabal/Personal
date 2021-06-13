@@ -52,8 +52,13 @@ int speed_l=0;
 
 //Controlador
 //Referencias
-float refs_x[]={1000.0};//200.0,400.0,600.0,800.0,1000.0};//,1000.0,0.0,0.0};
-float refs_y[]={0.0};//,0.0,0.0,0.0,0.0};//1000.0,1000.0,0.0};
+float refs_x[]={200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 800.0, 600.0, 400.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};//200.0,400.0,600.0,800.0,1000.0};//,1000.0,0.0,0.0};
+float refs_y[]={0.0, 0.0, 0.0, 0.0, 0.0, 200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 800.0, 600.0, 400.0, 200.0, 0.0};//,0.0,0.0,0.0,0.0};//1000.0,1000.0,0.0};
+//referencias intermedias
+float *ref_x_pointer;
+float *ref_y_pointer;
+int len_pointer=0;
+int index_pointer=0;
 int max_index=0;
 float ref_x=0.0;
 float ref_y=0.0;
@@ -280,7 +285,7 @@ void loop() {
   
             //Enviar señal de control
             motor_drive(act_r,act_l);
-        }else if ((e_d >= 50.0) && (fabs(e_a)<(6.28/3.0))&& (index_ref<max_index)){
+        }else if ((e_d >= 100.0) && (fabs(e_a)<(6.28/3.0))&& (index_ref<max_index)){
           //digitalWrite(13,LOW);
           
           total_i_a = 0.0;
@@ -353,7 +358,7 @@ void loop() {
 
           //Enviar señal de control
           motor_drive(act_r,act_l);
-        }else if ((e_d<50.0)&&(index_ref<max_index)){
+        }else if ((e_d<100.0)&&(index_ref<max_index)){
           total_i_d = 0.0;
           total_i_c=0.0;
 
@@ -503,16 +508,6 @@ void frenar(){
    analogWrite(motorr_2, 255);
    analogWrite(motorl_1, 255);
    analogWrite(motorl_2, 255);
-}
-
-void calcular_dist(){
-   float refs_x_aux[max_index];
-   float refs_y_aux[max_index];
-   int j;
-   int numero_de_posiciones_intermedias;
-   for (int i = 0; i <=max_index; i++) {
-    delay(10);
-  }
 }
 
 void cambio_referencia(){
