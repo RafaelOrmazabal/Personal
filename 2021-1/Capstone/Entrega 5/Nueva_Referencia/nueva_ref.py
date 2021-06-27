@@ -3,8 +3,11 @@ import numpy as np
 
 ##todo en milímetros
 def nueva_ref(referencias,index_ref,pos_x,pos_y,theta,distancias):
-    refs_x=referencias[0]
-    refs_y=referencias[1]
+    refs_x=[]
+    refs_y=[]
+    for j in range(len(referencias)):
+        refs_x.append(referencias[j][0])
+        refs_y.append(referencias[j][1])
 
     ##distancia y ángulo al punto más cercano
     l_1=float(distancias[0][0])*10.0
@@ -38,19 +41,22 @@ def nueva_ref(referencias,index_ref,pos_x,pos_y,theta,distancias):
     ##cortar
     ##falta revisar casos borde
     refs_x_aux_1=refs_x_aux_1[0:(index_ref )]
-    refs_x_aux_2=refs_x[(index_ref + n ):(-1)]
+    refs_x_aux_2=refs_x[(index_ref + n ):]
     refs_y_aux_1=refs_y_aux_1[0:(index_ref )]
-    refs_y_aux_2=refs_y[(index_ref + n ):(-1)]
+    refs_y_aux_2=refs_y[(index_ref + n ):]
     ##unir listas
     refs_x_aux_1.extend(refs_x_aux_2)
     refs_y_aux_1.extend(refs_y_aux_2)
     
+    lista_final=[]        
+    for j in range(len(refs_x_aux_1)):
+        lista_final.append([int(refs_x_aux_1[j]),int(refs_y_aux_1[j])])
 
 
     #retornar listas
-    return [refs_x_aux_1,refs_y_aux_1]
+    return lista_final
 
-refs=[[200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0000000000001, 800.0, 600.0, 400.0, 200.0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0000000000001, 1000.0000000000001, 1000.0000000000001, 800.0, 600.0, 400.0, 200.0, 0]]
+refs=[[200, 0], [400, 0], [600, 0], [800, 0], [1000, 0], [1000, 200], [1000, 400], [1000, 600], [1000, 800], [1000, 1000], [800, 1000], [600, 1000], [400, 1000], [200, 1000], [0, 1000], [0, 800], [0, 600], [0, 400], [0, 200], [0, 0]]
 index_ref=3
 posx=400.0
 posy=0.0

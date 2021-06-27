@@ -1,4 +1,3 @@
-#include <EEPROM.h>
 #include <math.h>
 //
 volatile  int cont_aux=0;
@@ -60,6 +59,7 @@ int index_ref=0;
 //Funciona o no el controlador
 String codificador;
 int go=0;
+int send_pos=0;
 
 
 //Error de ángulo
@@ -83,7 +83,7 @@ float rate_a=0.0;
 //Integral
 float ki_a=60.0;
 float total_i_a=0.0;
-float wind_up_a=160.0;
+float wind_up_a=220.0;
 //Anidado ángulo
 float kp_v=10.0;
 
@@ -184,8 +184,14 @@ void loop() {
       ref_y_aux= instruccion.substring(j+1).toInt(); //Cortar el string intruccion entre su inicio y la "," para aplicar ".toInt()" para convertirlo en entero.
       ref_y=(float)ref_y_aux;
       go=1;
+      /*
+      Serial.println(codificador);
+      Serial.println(ref_x);
+      Serial.println(ref_y);
+      */
     }else if (codificador=="s"){
-       go=0; 
+       go=0;
+       send_pos=1;
      }else{
        go=0; 
      }
@@ -216,6 +222,15 @@ void loop() {
         estimar_estado(speed_r, speed_l, d_time);
 
         cambio_referencia();
+
+        if ((speed_r==0) && (speed_l==0) && (send_pos==1)){
+          Serial.print(distancia_x);
+          Serial.print(",");
+          Serial.print(distancia_y);
+          Serial.print(",");
+          Serial.println(angulo);
+          send_pos=0;
+          }
 
         if(go==0){
           motor_drive(0,0);
@@ -293,15 +308,15 @@ void loop() {
 
           //Revisar magnitudes
 
-          if (act_r_aux>220.0){
-            act_r_aux=220.0;
-            }else if(act_r_aux<-220.0){
-              act_r_aux = -220.0;
+          if (act_r_aux>240.0){
+            act_r_aux=240.0;
+            }else if(act_r_aux<-240.0){
+              act_r_aux = -240.0;
             }
-          if (act_l_aux>220.0){
-            act_l_aux=220.0;
-            }else if(act_l_aux<-220.0){
-              act_l_aux = -220.0;
+          if (act_l_aux>240.0){
+            act_l_aux=240.0;
+            }else if(act_l_aux<-240.0){
+              act_l_aux = -240.0;
             }
 
           //Pasar a int
@@ -366,21 +381,22 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux>200.0){
-            act_r_aux=200.0;
-            }else if(act_r_aux<-200.0){
-              act_r_aux = -200.0;
+          if (act_r_aux>218.0){
+            act_r_aux=218.0;
+            }else if(act_r_aux<-218.0){
+              act_r_aux = -218.0;
             }
-          if (act_l_aux>200.0){
-            act_l_aux=200.0;
-            }else if(act_l_aux<-200.0){
-              act_l_aux = -200.0;
+          if (act_l_aux>218.0){
+            act_l_aux=218.0;
+            }else if(act_l_aux<-218.0){
+              act_l_aux = -218.0;
             }
 
           //Pasar a int
           act_r=(int)act_r_aux;
           act_l=(int)act_l_aux;
-
+          //Serial.println(act_r);
+          //Serial.println(act_l);
           //Enviar señal de control
           motor_drive(act_r,act_l);
         }else if ((e_d<100.0)&&(go==1)){
@@ -393,9 +409,10 @@ void loop() {
           dist_ant_0 = 0.0;
           motor_drive(0,0);
           Serial.println("end");
-          Serial.print(distancia_x);
+          /*Serial.print(distancia_x);
           Serial.print(",");
           Serial.println(distancia_y);
+          */
           change_cont=0;
         }
         time_ant=time_act;

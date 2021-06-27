@@ -52,8 +52,8 @@ int speed_l=0;
 
 //Controlador
 //Referencias
-float refs_x[]={1000.0,1000.0,0.0,0.0};
-float refs_y[]={0,1000.0,1000.0,0.0};
+float refs_x[]={1000.0};//,1000.0,0.0,0.0};
+float refs_y[]={0.0};//,1000.0,1000.0,0.0};
 float ref_x=0.0;
 float ref_y=0.0;
 int index_ref=0;
@@ -260,15 +260,15 @@ void loop() {
 
           //Revisar magnitudes
 
-          if (act_r_aux>220.0){
-            act_r_aux=220.0;
-            }else if(act_r_aux<-220.0){
-              act_r_aux = -220.0;
+          if (act_r_aux>250.0){
+            act_r_aux=250.0;
+            }else if(act_r_aux<-250.0){
+              act_r_aux = -250.0;
             }
-          if (act_l_aux>220.0){
-            act_l_aux=220.0;
-            }else if(act_l_aux<-220.0){
-              act_l_aux = -220.0;
+          if (act_l_aux>250.0){
+            act_l_aux=250.0;
+            }else if(act_l_aux<-250.0){
+              act_l_aux = -250.0;
             }
 
           //Pasar a int
@@ -409,6 +409,7 @@ void count_left(){
 }
 
 void motor_drive(int velocidad_r, int velocidad_l){
+  Serial.println(velocidad_r);
   int mag_aux_r_1=0;
   int mag_aux_r_2=0;
   int mag_aux_l_1=0;

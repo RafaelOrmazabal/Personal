@@ -51,9 +51,14 @@ q_1=0;
 l_2=sqrt((obs1(1)-pos_x)^2+(obs1(2)-pos_y)^2);
 q_2=atan((obs1(2)-pos_y)/(obs1(1)-pos_x));
 
+posiciones_x=[200, 400, 600 800, 1000, 1000, 1000, 1000, 1000, 1000, 800, 600, 400, 200, 0, 0, 0, 0, 0, 0];
+posiciones_y=[0, 0, 0, 0, 200,0, 400, 600, 800, 1000, 1000, 1000, 1000, 1000, 1000, 800, 600, 400, 200, 0];
+
 posx=[pos_x , 541.02,800.0];
 posy=[pos_y , 299.99 ,0];
-scatter(posx,posy,'filled')
+scatter(posiciones_x,posiciones_y,'filled')
+
+%%scatter(posx,posy,'filled')
 
 hold off
 

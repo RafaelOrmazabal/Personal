@@ -86,7 +86,7 @@ float rate_a=0.0;
 //Integral
 float ki_a=60.0;
 float total_i_a=0.0;
-float wind_up_a=160.0;
+float wind_up_a=220.0;
 //Anidado ángulo
 float kp_v=10.0;
 
@@ -268,15 +268,15 @@ void loop() {
 
           //Revisar magnitudes
 
-          if (act_r_aux>220.0){
-            act_r_aux=220.0;
-            }else if(act_r_aux<-220.0){
-              act_r_aux = -220.0;
+          if (act_r_aux>240.0){
+            act_r_aux=240.0;
+            }else if(act_r_aux<-240.0){
+              act_r_aux = -240.0;
             }
-          if (act_l_aux>220.0){
-            act_l_aux=220.0;
-            }else if(act_l_aux<-220.0){
-              act_l_aux = -220.0;
+          if (act_l_aux>240.0){
+            act_l_aux=240.0;
+            }else if(act_l_aux<-240.0){
+              act_l_aux = -240.0;
             }
 
           //Pasar a int
@@ -341,15 +341,15 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux>200.0){
-            act_r_aux=200.0;
-            }else if(act_r_aux<-200.0){
-              act_r_aux = -200.0;
+          if (act_r_aux>220.0){
+            act_r_aux=220.0;
+            }else if(act_r_aux<-220.0){
+              act_r_aux = -220.0;
             }
-          if (act_l_aux>200.0){
-            act_l_aux=200.0;
-            }else if(act_l_aux<-200.0){
-              act_l_aux = -200.0;
+          if (act_l_aux>220.0){
+            act_l_aux=220.0;
+            }else if(act_l_aux<-220.0){
+              act_l_aux = -20.0;
             }
 
           //Pasar a int
