@@ -52,8 +52,8 @@ int speed_l=0;
 
 //Controlador
 //Referencias
-float refs_x[]={200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 800.0, 600.0, 400.0, 200.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};//200.0,400.0,600.0,800.0,1000.0};//,1000.0,0.0,0.0};
-float refs_y[]={0.0, 0.0, 0.0, 0.0, 0.0, 200.0, 400.0, 600.0, 800.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 1000.0, 800.0, 600.0, 400.0, 200.0, 0.0};//,0.0,0.0,0.0,0.0};//1000.0,1000.0,0.0};
+float refs_x[]={200.0, 400.0, 600.0, 600.0, 600.0, 600.0, 400.0, 200.0, 0.0};//200.0,400.0,600.0,800.0,1000.0};//,1000.0,0.0,0.0};
+float refs_y[]={0., 0., 0., -200., -400., -600., -600., -600., -599.};//,0.0,0.0,0.0,0.0};//1000.0,1000.0,0.0};
 //referencias intermedias
 float *ref_x_pointer;
 float *ref_y_pointer;
@@ -193,11 +193,12 @@ void loop() {
         e_d_aux=float(e_d);
         e_a=ref_a - angulo;
         */
-         
+        //Serial.println(e_a);
         if ((fabs(e_a)>(1.2))&&(change_cont==0)&& (index_ref<max_index)){
 
           
-
+          Serial.println("Cualquier cosa");
+          
           total_i_d = 0.0;
           total_i_c=0.0;
 
@@ -232,7 +233,7 @@ void loop() {
 
           //PID Anidado
           
-          speed_diff=(float)(abs(speed_r)-abs(speed_l));
+          speed_diff=fabs((float)(abs(speed_r)-abs(speed_l)));
           
           if (abs(speed_r)>abs(speed_l)){
             if (e_a>=0.0){
@@ -255,7 +256,7 @@ void loop() {
               if (act_l_aux>0.0){
                 act_l_aux=0.0;
               }
-              }else if (e_a<0){
+              }else if (e_a<0.0){
               act_r_aux=act_r_aux-speed_diff*kp_v;
               act_l_aux=act_l_aux-speed_diff*kp_v;
               if (act_l_aux<0.0){
@@ -341,15 +342,15 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux>220.0){
-            act_r_aux=220.0;
-            }else if(act_r_aux<-220.0){
-              act_r_aux = -220.0;
+          if (act_r_aux>228.0){
+            act_r_aux=228.0;
+            }else if(act_r_aux<-228.0){
+              act_r_aux = -228.0;
             }
-          if (act_l_aux>220.0){
-            act_l_aux=220.0;
-            }else if(act_l_aux<-220.0){
-              act_l_aux = -20.0;
+          if (act_l_aux>228.0){
+            act_l_aux=228.0;
+            }else if(act_l_aux<-228.0){
+              act_l_aux = -228.0;
             }
 
           //Pasar a int
@@ -519,7 +520,7 @@ void cambio_referencia(){
   e_a = e_a + 2 * 3.14;
 }
   //Serial.println(e_d);
-  Serial.println(e_a);
+  //Serial.println(e_a);
   if (e_a>0.0){
     digitalWrite(13,HIGH);
   }

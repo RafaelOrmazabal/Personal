@@ -4,8 +4,8 @@ volatile  int cont_aux=0;
 //Pins
 const int pin_1r = 12;
 const int pin_2r = 11;
-const int pin_1l = 14;
-const int pin_2l = 15;
+const int pin_1l = 15;
+const int pin_2l = 14;
 
 const int motorl_1 = 5;
 const int motorl_2 = 6;
@@ -184,6 +184,7 @@ void loop() {
       ref_y_aux= instruccion.substring(j+1).toInt(); //Cortar el string intruccion entre su inicio y la "," para aplicar ".toInt()" para convertirlo en entero.
       ref_y=(float)ref_y_aux;
       go=1;
+      change_cont=0;
       /*
       Serial.println(codificador);
       Serial.println(ref_x);
@@ -192,6 +193,15 @@ void loop() {
     }else if (codificador=="s"){
        go=0;
        send_pos=1;
+       //cambiar controlador
+       change_cont=0;
+     }else if (codificador=="e"){
+       go=0;
+       //cambiar controlador
+       change_cont=0;
+       distancia_x = 0;
+       distancia_y = 0;
+       angulo = 0.0;//[rad]
      }else{
        go=0; 
      }
@@ -272,7 +282,7 @@ void loop() {
 
           //PID Anidado
           
-          speed_diff=(float)(abs(speed_r)-abs(speed_l));
+          speed_diff=fabs((float)(abs(speed_r)-abs(speed_l)));
           
           if (abs(speed_r)>abs(speed_l)){
             if (e_a>=0.0){
@@ -381,15 +391,15 @@ void loop() {
 
           
           //Revisar magnitudes
-          if (act_r_aux>218.0){
-            act_r_aux=218.0;
-            }else if(act_r_aux<-218.0){
-              act_r_aux = -218.0;
+          if (act_r_aux>228.0){
+            act_r_aux=228.0;
+            }else if(act_r_aux<-228.0){
+              act_r_aux = -228.0;
             }
-          if (act_l_aux>218.0){
-            act_l_aux=218.0;
-            }else if(act_l_aux<-218.0){
-              act_l_aux = -218.0;
+          if (act_l_aux>228.0){
+            act_l_aux=228.0;
+            }else if(act_l_aux<-228.0){
+              act_l_aux = -228.0;
             }
 
           //Pasar a int
